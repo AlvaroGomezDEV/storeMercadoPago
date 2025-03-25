@@ -13,10 +13,18 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022"
+    "target": "ES2015",
+    "module": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@sharedComponents/*": ["src/app/shared/components/*"],
+      "@sharedServices/*": ["src/app/shared/services/*"],
+      "@env/*": ["src/environments/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -25,3 +33,11 @@
     "strictTemplates": true
   }
 }
+// "target": "es2015",
+//     "module": "esnext",
+//     "moduleResolution": "node",
+//     "strict": true,
+//     "skipLibCheck": true,
+
+
+//     "lib": ["es2015", "dom"]
