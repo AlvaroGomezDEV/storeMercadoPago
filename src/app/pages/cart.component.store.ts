@@ -1,6 +1,13 @@
 import { computed } from "@angular/core";
-import { Cart } from "@app/models/cart.model";
-import { signalStore, withComputed, withState } from "@ngrx/signals";
+import { Cart, CartItems } from "@app/models/cart.model";
+import { Product } from "@app/models/product.model";
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withMethods,
+  withState,
+} from "@ngrx/signals";
 
 type Status = "loading" | "success" | "error";
 
@@ -17,23 +24,7 @@ type CartState = {
 
 const initialState: CartState = {
   cart: {
-    cartItems: [
-      {
-        product: {
-          id: 0,
-          title: "",
-          price: 0,
-          description: "",
-          category: "",
-          image: "",
-          rating: {
-            rate: 0,
-            count: 0,
-          },
-        },
-        quantity: 0,
-      },
-    ],
+    cartItems: [],
   },
   isLoading: "loading",
   filter: {
@@ -45,6 +36,36 @@ const initialState: CartState = {
 export const CartStore = signalStore(
   { providedIn: "root" },
   withState(initialState),
+  withMethods((store) => ({
+    addProductToCart(product: Product, quantity: number): void {
+      const existingCartItemIndex = store.cart
+        .cartItems()
+        .findIndex((item) => item.product.id === product.id);
+
+      if (existingCartItemIndex > -1) {
+        const updatedCartItems = store.cart
+          .cartItems()
+          .map((item, index) =>
+            index === existingCartItemIndex
+              ? { ...item, quantity: item.quantity + quantity }
+              : item,
+          );
+
+        patchState(store, {
+          cart: { ...store.cart(), cartItems: updatedCartItems },
+        });
+      } else {
+        const newCartItem: CartItems = { product, quantity };
+
+        patchState(store, {
+          cart: {
+            ...store.cart(),
+            cartItems: [...store.cart().cartItems, newCartItem],
+          },
+        });
+      }
+    },
+  })),
   withComputed(({ isLoading, filter, cart }) => ({
     sortedCartItems: computed(() => {
       const direction = filter.order() === "asc" ? 1 : -1;
@@ -58,5 +79,10 @@ export const CartStore = signalStore(
 
     comuntProducts: computed(() => cart.cartItems().length),
     isLoadingCart: computed(() => isLoading()),
+    priceTotal: computed(() =>
+      cart
+        .cartItems()
+        .reduce((acc, item) => acc + item.product.price * item.quantity, 0),
+    ),
   })),
 );

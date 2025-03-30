@@ -4,7 +4,7 @@ export interface Cart {
   cartItems: CartItems[];
 }
 
-interface CartItems {
+export interface CartItems {
   product: Product;
   quantity: number;
 }

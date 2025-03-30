@@ -2,7 +2,7 @@
   <div
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
   >
-    @if (store.loadingProducts() !== "success") {
+    @if (productsStore.loadingProducts() !== "success") {
       @for (i of [1, 2, 3, 4]; track $index) {
         <div
           class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
@@ -29,8 +29,8 @@
           </div>
         </div>
       }
-    } @else {
-      @for (product of store.allProdutcs(); track product.id) {
+    } @else if (productsStore.allProdutcs().length > 0) {
+      @for (product of productsStore.allProdutcs(); track product.id) {
         <div
           class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
         >
@@ -77,12 +77,51 @@
                 >
               </div>
             </div>
-            <button
-              (click)="goToProductDetail(product.id)"
-              class="mt-4 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
+            <form
+              [formGroup]="getForm(product.id)"
+              (ngSubmit)="addToCart(product)"
             >
-              Añadir al carrito
-            </button>
+              <div class="cartForm mx-auto flex items-end mt-4">
+                <button
+                  class="flex mr-4 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
+                >
+                  Añadir al carrito
+                </button>
+                <div class="quantityWrapper flex flex-col">
+                  <label for="quantity" class="text-sm text-gray-700 flex"
+                    >Cantidad</label
+                  >
+                  <input
+                    type="number"
+                    name="quantity"
+                    id="quantity"
+                    min="1"
+                    max="99"
+                    class="w-full p-2 border border-gray-500 rounded flex"
+                    formControlName="quantity"
+                  />
+                </div>
+              </div>
+              @if (
+                getQuantityControl(product.id)?.invalid &&
+                (getQuantityControl(product.id)?.dirty ||
+                  getQuantityControl(product.id)?.touched)
+              ) {
+                <div class="cartFormValidators">
+                  @if (getQuantityControl(product.id)?.errors?.["required"]) {
+                    <div>La cantidad es requerida.</div>
+                  }
+
+                  @if (getQuantityControl(product.id)?.errors?.["min"]) {
+                    <div>La cantidad debe ser mayor o igual a 1.</div>
+                  }
+
+                  @if (getQuantityControl(product.id)?.errors?.["pattern"]) {
+                    <div>Ingrese una cantidad válida.</div>
+                  }
+                </div>
+              }
+            </form>
           </div>
         </div>
       } @empty {
