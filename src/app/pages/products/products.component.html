@@ -1,132 +1,88 @@
 <div class="container mx-auto w-full max-w-9/10">
-  <div
-    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-  >
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     @if (productsStore.loadingProducts() !== "success") {
-      @for (i of [1, 2, 3, 4]; track $index) {
-        <div
-          class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
-        >
-          <div class="w-full h-48 bg-gray-300"></div>
-          <div class="p-4">
-            <div class="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-            <div class="h-4 bg-gray-300 rounded mb-2"></div>
-            <div class="flex justify-between items-center mt-3">
-              <div class="h-5 bg-gray-300 rounded w-20"></div>
-              <div class="flex items-center text-sm text-gray-500">
-                <svg
-                  class="w-4 h-4 mr-1 fill-current text-gray-300"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M10 15l-5.878 3.09 1.176-6.545L.587 7.647l6.545-.953L10 1l2.868 5.694 6.545.953-4.765 4.095 1.176 6.545z"
-                  />
-                </svg>
-                <span class="h-4 bg-gray-300 rounded w-16 inline-block"></span>
-              </div>
-            </div>
-            <div class="mt-4 bg-gray-300 rounded py-2 px-4"></div>
+    @for (i of [1, 2, 3, 4]; track $index) {
+    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+      <div class="w-full h-48 bg-gray-300"></div>
+      <div class="p-4">
+        <div class="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+        <div class="h-4 bg-gray-300 rounded mb-2"></div>
+        <div class="flex justify-between items-center mt-3">
+          <div class="h-5 bg-gray-300 rounded w-20"></div>
+          <div class="flex items-center text-sm text-gray-500">
+            <svg class="w-4 h-4 mr-1 fill-current text-gray-300" viewBox="0 0 20 20">
+              <path
+                d="M10 15l-5.878 3.09 1.176-6.545L.587 7.647l6.545-.953L10 1l2.868 5.694 6.545.953-4.765 4.095 1.176 6.545z" />
+            </svg>
+            <span class="h-4 bg-gray-300 rounded w-16 inline-block"></span>
           </div>
         </div>
-      }
+        <div class="mt-4 bg-gray-300 rounded py-2 px-4"></div>
+      </div>
+    </div>
+    }
     } @else if (productsStore.allProdutcs().length > 0) {
-      @for (product of productsStore.allProdutcs(); track product.id) {
-        <div
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
-        >
-          <img
-            [src]="product.image"
-            [alt]="product.title"
-            class="w-full h-48 object-contain p-4 cursor-pointer"
-            (click)="goToProductDetail(product.id)"
-            (keydown.enter)="goToProductDetail(product.id)"
-            [tabindex]="$index + 1"
-          />
-          <div class="p-4">
-            <h3
-              class="text-lg font-semibold text-white cursor-pointer"
-              (click)="goToProductDetail(product.id)"
-              (keydown.enter)="goToProductDetail(product.id)"
-              [tabindex]="$index + 1"
-            >
-              {{ product.title }}
-            </h3>
-            <p
-              class="text-white text-sm mt-2 cursor-pointer"
-              (click)="goToProductDetail(product.id)"
-              (keydown.enter)="goToProductDetail(product.id)"
-              [tabindex]="$index + 1"
-            >
-              {{ product.description | slice: 0 : 100 }}...
-            </p>
-            <div class="flex justify-between items-center mt-3">
-              <span class="text-xl font-bold text-indigo-600"
-                >${{ product.price }}</span
-              >
-              <div class="flex items-center text-sm text-gray-500">
-                <svg
-                  class="w-4 h-4 mr-1 fill-current text-yellow-500"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M10 15l-5.878 3.09 1.176-6.545L.587 7.647l6.545-.953L10 1l2.868 5.694 6.545.953-4.765 4.095 1.176 6.545z"
-                  />
-                </svg>
-                <span
-                  >{{ product.rating.rate }} ({{ product.rating.count }})</span
-                >
-              </div>
-            </div>
-            <form
-              [formGroup]="getForm(product.id)"
-              (ngSubmit)="addToCart(product)"
-            >
-              <div class="cartForm mx-auto flex items-end mt-4">
-                <button
-                  class="flex mr-4 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
-                >
-                  Añadir al carrito
-                </button>
-                <div class="quantityWrapper flex flex-col">
-                  <label for="quantity" class="text-sm text-gray-700 flex"
-                    >Cantidad</label
-                  >
-                  <input
-                    type="number"
-                    name="quantity"
-                    id="quantity"
-                    min="1"
-                    max="99"
-                    class="w-full p-2 border border-gray-500 rounded flex"
-                    formControlName="quantity"
-                  />
-                </div>
-              </div>
-              @if (
-                getQuantityControl(product.id)?.invalid &&
-                (getQuantityControl(product.id)?.dirty ||
-                  getQuantityControl(product.id)?.touched)
-              ) {
-                <div class="cartFormValidators">
-                  @if (getQuantityControl(product.id)?.errors?.["required"]) {
-                    <div>La cantidad es requerida.</div>
-                  }
-
-                  @if (getQuantityControl(product.id)?.errors?.["min"]) {
-                    <div>La cantidad debe ser mayor o igual a 1.</div>
-                  }
-
-                  @if (getQuantityControl(product.id)?.errors?.["pattern"]) {
-                    <div>Ingrese una cantidad válida.</div>
-                  }
-                </div>
-              }
-            </form>
+    @for (product of productsStore.allProdutcs(); track product.id) {
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <img [src]="product.image" [alt]="product.title" class="w-full h-48 object-contain p-4 cursor-pointer"
+        (click)="goToProductDetail(product.id)" (keydown.enter)="goToProductDetail(product.id)"
+        [tabindex]="$index + 1" />
+      <div class="p-4">
+        <h3 class="text-lg font-semibold text-white cursor-pointer" (click)="goToProductDetail(product.id)"
+          (keydown.enter)="goToProductDetail(product.id)" [tabindex]="$index + 1">
+          {{ product.title }}
+        </h3>
+        <p class="text-white text-sm mt-2 cursor-pointer" (click)="goToProductDetail(product.id)"
+          (keydown.enter)="goToProductDetail(product.id)" [tabindex]="$index + 1">
+          {{ product.description | slice: 0 : 100 }}...
+        </p>
+        <div class="flex justify-between items-center mt-3">
+          <span class="text-xl font-bold text-indigo-600">${{ product.price }}</span>
+          <div class="flex items-center text-sm text-gray-500">
+            <svg class="w-4 h-4 mr-1 fill-current text-yellow-500" viewBox="0 0 20 20">
+              <path
+                d="M10 15l-5.878 3.09 1.176-6.545L.587 7.647l6.545-.953L10 1l2.868 5.694 6.545.953-4.765 4.095 1.176 6.545z" />
+            </svg>
+            <span>{{ product.rating.rate }} ({{ product.rating.count }})</span>
           </div>
         </div>
-      } @empty {
-        <p>No hay productos disponibles en este momento.</p>
-      }
+        <form [formGroup]="getForm(product.id)" (ngSubmit)="addToCart(product)">
+          <div class="cartForm mx-auto justify-between flex items-end mt-4">
+            <button
+              class="flex mr-4 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer">
+              Añadir al carrito
+            </button>
+            <div class="quantityWrapper flex flex-col">
+              <label [for]="'quantity'+product.id" class="text-sm text-gray-700 flex">Cantidad</label>
+              <input type="number" [name]="'quantity'+product.id" [id]="'quantity'+product.id" min="1" max="99"
+                class="w-full p-2 border border-gray-500 rounded flex" formControlName="quantity" />
+            </div>
+          </div>
+          @if (
+          getQuantityControl(product.id)?.invalid &&
+          (getQuantityControl(product.id)?.dirty ||
+          getQuantityControl(product.id)?.touched)
+          ) {
+          <div class="cartFormValidators">
+            @if (getQuantityControl(product.id)?.errors?.["required"]) {
+            <div>La cantidad es requerida.</div>
+            }
+
+            @if (getQuantityControl(product.id)?.errors?.["min"]) {
+            <div>La cantidad debe ser mayor o igual a 1.</div>
+            }
+
+            @if (getQuantityControl(product.id)?.errors?.["pattern"]) {
+            <div>Ingrese una cantidad válida.</div>
+            }
+          </div>
+          }
+        </form>
+      </div>
+    </div>
+    } @empty {
+    <p>No hay productos disponibles en este momento.</p>
+    }
     }
   </div>
 </div>
