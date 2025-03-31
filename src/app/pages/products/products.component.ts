@@ -29,8 +29,8 @@ export default class ProductsComponent {
   constructor() {
     effect(() => {
       const products = this.productsStore.allProdutcs();
+
       if (products.length > 0 && Object.keys(this.productForms).length === 0) {
-        console.log("Products:", this.productsStore.allProdutcs());
         this.productsStore.allProdutcs().forEach((product) => {
           this.productForms[product.id] = this.fb.group({
             quantity: [
@@ -48,7 +48,6 @@ export default class ProductsComponent {
   }
 
   goToProductDetail(productId: number) {
-    console.log("id: ", productId);
     this.router.navigate(["/detail", productId]);
   }
 
@@ -59,9 +58,6 @@ export default class ProductsComponent {
       const quantity = form.get("quantity")?.value;
 
       this.cartStore.addProductToCart(product, quantity);
-      console.log(
-        `Producto "${product.title}" agregado al carrito con cantidad: ${quantity}`,
-      );
       form.reset({ quantity: 1 });
     } else if (form) {
       form.markAllAsTouched();
