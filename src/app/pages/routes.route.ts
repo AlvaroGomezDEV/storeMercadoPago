@@ -15,6 +15,10 @@ export default [
     loadComponent: () => import("./products/products.component"),
   },
   {
+    path: "checkout",
+    loadComponent: () => import("./checkout/checkout.component"),
+  },
+  {
     path: "cart",
     loadComponent: () => import("./cart/cart.component"),
   },

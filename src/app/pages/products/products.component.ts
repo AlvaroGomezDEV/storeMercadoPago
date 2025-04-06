@@ -11,6 +11,7 @@ import {
 
 import { Product } from "@app/models/product.model";
 import { CartStore } from "../cart.component.store";
+import { ToastService } from "@app/shared/services/toast-service.service";
 
 @Component({
   selector: "app-products",
@@ -20,8 +21,13 @@ import { CartStore } from "../cart.component.store";
 })
 export default class ProductsComponent {
   private fb = inject(FormBuilder);
+
   readonly cartStore = inject(CartStore);
+
   readonly productsStore = inject(ProductsStore);
+
+  private toastService = inject(ToastService);
+
   productForms: { [productId: number]: FormGroup } = {};
 
   router = inject(Router);
@@ -59,6 +65,8 @@ export default class ProductsComponent {
 
       this.cartStore.addProductToCart(product, quantity);
       form.reset({ quantity: 1 });
+
+      this.toastService.success("producto agregado al carrito");
     } else if (form) {
       form.markAllAsTouched();
     }

@@ -1,6 +1,7 @@
-import { computed } from "@angular/core";
+import { computed, inject } from "@angular/core";
 import { Cart, CartItems } from "@app/models/cart.model";
 import { Product } from "@app/models/product.model";
+import { ToastService } from "@app/shared/services/toast-service.service";
 import {
   patchState,
   signalStore,
@@ -36,24 +37,39 @@ const initialState: CartState = {
 export const CartStore = signalStore(
   { providedIn: "root" },
   withState(initialState),
-  withMethods((store) => ({
+  withMethods((store, toastService = inject(ToastService)) => ({
     addProductToCart(product: Product, quantity: number): void {
       const existingCartItemIndex = store.cart
         .cartItems()
         .findIndex((item) => item.product.id === product.id);
 
       if (existingCartItemIndex > -1) {
-        const updatedCartItems = store.cart
-          .cartItems()
-          .map((item, index) =>
-            index === existingCartItemIndex
-              ? { ...item, quantity: item.quantity + quantity }
-              : item,
-          );
+        const existingCartItem = store.cart.cartItems()[existingCartItemIndex];
+        const newQuantity = existingCartItem.quantity + quantity;
 
-        patchState(store, {
-          cart: { ...store.cart(), cartItems: updatedCartItems },
-        });
+        if (newQuantity <= 0) {
+          const updatedCartItems = store.cart
+            .cartItems()
+            .filter((_, index) => index !== existingCartItemIndex);
+
+          patchState(store, {
+            cart: { ...store.cart(), cartItems: updatedCartItems },
+          });
+
+          toastService.warning("Producto eliminado del carrito");
+        } else {
+          const updatedCartItems = store.cart
+            .cartItems()
+            .map((item, index) =>
+              index === existingCartItemIndex
+                ? { ...item, quantity: item.quantity + quantity }
+                : item,
+            );
+
+          patchState(store, {
+            cart: { ...store.cart(), cartItems: updatedCartItems },
+          });
+        }
       } else {
         const newCartItem: CartItems = { product, quantity };
 
@@ -77,7 +93,7 @@ export const CartStore = signalStore(
         );
     }),
 
-    comuntProducts: computed(() => cart.cartItems().length),
+    countProducts: computed(() => cart.cartItems().length),
     isLoadingCart: computed(() => isLoading()),
     priceTotal: computed(() =>
       cart
